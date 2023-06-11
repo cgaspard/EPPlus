@@ -1,20 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows</TargetFrameworks>
     <AssemblyVersion>4.5.3.3</AssemblyVersion>
     <FileVersion>4.5.3.3</FileVersion>
     <Version>4.5.3.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseUrl>
+    </PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
     <Authors>Jan Källman</Authors>
-    <Company></Company>
+    <Company>
+    </Company>
     <Product>EPPlus</Product>
     <Description>Create advanced Excel spreadsheets using .NET</Description>
     <AssemblyName>EPPlus</AssemblyName>
     <RootNamespace>EPPlus</RootNamespace>
-    <RepositoryUrl></RepositoryUrl>
+    <RepositoryUrl>
+    </RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
     <Copyright>Jan Källman 2020</Copyright>
     <PackageReleaseNotes>
@@ -237,41 +239,31 @@ Release Candidate changes
     <NeutralLanguage />
     <PackageLicenseFile>lgpl-3.0.txt</PackageLicenseFile>
   </PropertyGroup>
- 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>Core;STANDARD20</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1'">
     <DefineConstants>Core</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net35'">
     <DefineConstants>NET35;NETFULL</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40'">
     <DefineConstants>NET40;NETFULL</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EPPlus.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Packaging\DotNetZip\ZipFile.SaveSelfExtractor.cs" />
   </ItemGroup>
-
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net35'">
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -279,11 +271,9 @@ Release Candidate changes
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
-  
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40'">
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -304,6 +294,14 @@ Release Candidate changes
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
     <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.421302">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.421302">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
@@ -326,7 +324,8 @@ Release Candidate changes
     </None>
     <None Include="lgpl-3.0.txt">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath>
+      </PackagePath>
     </None>
   </ItemGroup>
 </Project>

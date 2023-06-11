@@ -11,7 +11,7 @@ using OfficeOpenXml.Table;
 
 namespace SampleWebApp.Core.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : Microsoft.AspNetCore.Mvc.Controller
     {
         private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         private readonly IHostingEnvironment _hostingEnvironment;
