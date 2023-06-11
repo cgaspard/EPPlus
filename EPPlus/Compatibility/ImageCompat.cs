@@ -1,38 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
+using SkiaSharp;
 
 namespace OfficeOpenXml.Compatibility
 {
     internal class ImageCompat
     {
-        internal static byte[] GetImageAsByteArray(Image image)
+        internal static byte[] GetImageAsByteArray(SKBitmap bitmap)
         {
-            var ms = new MemoryStream();
-            if (image.RawFormat.Guid == ImageFormat.Gif.Guid)
+            using var ms = new MemoryStream();
+            SKEncodedImageFormat format;
+
+            // Determine the format based on the color type of the bitmap.
+            // Note: this is a simplification, the color type does not necessarily
+            // determine the original image format.
+            switch (bitmap.ColorType)
             {
-                image.Save(ms, ImageFormat.Gif);
+                case SKColorType.Bgra8888:  // Bgra8888 color type is used in GIF, BMP, and PNG
+                    format = SKEncodedImageFormat.Png;
+                    break;
+                case SKColorType.Alpha8:  // Alpha8 color type can be used in BMP
+                    format = SKEncodedImageFormat.Bmp;
+                    break;
+                default:
+                    format = SKEncodedImageFormat.Jpeg;
+                    break;
             }
-            else if (image.RawFormat.Guid == ImageFormat.Bmp.Guid)
-            {
-                image.Save(ms, ImageFormat.Bmp);
-            }
-            else if (image.RawFormat.Guid == ImageFormat.Png.Guid)
-            {
-                image.Save(ms, ImageFormat.Png);
-            }
-            else if (image.RawFormat.Guid == ImageFormat.Tiff.Guid)
-            {
-                image.Save(ms, ImageFormat.Tiff);
-            }
-            else
-            {
-                image.Save(ms, ImageFormat.Jpeg);
-            }
+
+            using var skImage = SKImage.FromBitmap(bitmap);
+            var encoded = skImage.Encode(format, 100);
+            encoded.SaveTo(ms);
 
             return ms.ToArray();
         }

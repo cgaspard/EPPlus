@@ -40,6 +40,8 @@ using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Packaging;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Compatibility;
+using SkiaSharp;
+using System.IO.Compression;
 
 namespace OfficeOpenXml
 {
@@ -66,7 +68,7 @@ namespace OfficeOpenXml
         /// The background image of the worksheet. 
         /// The image will be saved internally as a jpg.
         /// </summary>
-        public Image Image
+        public SKImage Image
         {
             get
             {
@@ -75,7 +77,11 @@ namespace OfficeOpenXml
                 {
                     var rel = _workSheet.Part.GetRelationship(relID);
                     var imagePart = _workSheet.Part.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri));
-                    return Image.FromStream(imagePart.GetStream());
+
+                    using (var stream = imagePart.GetStream())
+                    {
+                        return SKImage.FromEncodedData(stream);
+                    }
                 }
                 return null;
             }
@@ -88,18 +94,17 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-#if (Core)
-                    var img=ImageCompat.GetImageAsByteArray(value);
-#else
-                    ImageConverter ic = new ImageConverter();
-                    byte[] img = (byte[])ic.ConvertTo(value, typeof(byte[]));
-#endif
-                    var ii = _workSheet.Workbook._package.AddImage(img);
-                    var rel = _workSheet.Part.CreateRelationship(ii.Uri, Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
-                    SetXmlNodeString(BACKGROUNDPIC_PATH, rel.Id);
+                    using (var data = value.Encode())
+                    {
+                        var img = data.ToArray();
+                        var ii = _workSheet.Workbook._package.AddImage(img);
+                        var rel = _workSheet.Part.CreateRelationship(ii.Uri, Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                        SetXmlNodeString(BACKGROUNDPIC_PATH, rel.Id);
+                    }
                 }
             }
         }
+
         /// <summary>
         /// Set the picture from an image file. 
         /// The image file will be saved as a blob, so make sure Excel supports the image format.
@@ -109,12 +114,15 @@ namespace OfficeOpenXml
         {
             DeletePrevImage();
 
-            Image img;
+            SKImage img;
             byte[] fileBytes;
             try
             {
                 fileBytes = File.ReadAllBytes(PictureFile.FullName);
-                img = Image.FromFile(PictureFile.FullName);
+                using (var stream = new MemoryStream(fileBytes))
+                {
+                    img = SKImage.FromEncodedData(stream);
+                }
             }
             catch (Exception ex)
             {
@@ -126,8 +134,7 @@ namespace OfficeOpenXml
 
             var ii = _workSheet.Workbook._package.AddImage(fileBytes, imageURI, contentType);
 
-
-            if (_workSheet.Part.Package.PartExists(imageURI) && ii.RefCount==1) //The file exists with another content, overwrite it.
+            if (_workSheet.Part.Package.PartExists(imageURI) && ii.RefCount == 1) //The file exists with another content, overwrite it.
             {
                 //Remove the part if it exists
                 _workSheet.Part.Package.DeletePart(imageURI);
@@ -147,27 +154,25 @@ namespace OfficeOpenXml
             var relID = GetXmlNodeString(BACKGROUNDPIC_PATH);
             if (relID != "")
             {
-#if (Core)
-                var img=ImageCompat.GetImageAsByteArray(Image);
-#else
-                var ic = new ImageConverter();
-                byte[] img = (byte[])ic.ConvertTo(Image, typeof(byte[]));
-#endif
-                var ii = _workSheet.Workbook._package.GetImageInfo(img);
-
-                //Delete the relation
-                _workSheet.Part.DeleteRelationship(relID);
-                
-                //Delete the image if there are no other references.
-                if (ii != null && ii.RefCount == 1)
+                using (var data = Image.Encode())
                 {
-                    if (_workSheet.Part.Package.PartExists(ii.Uri))
+                    var img = data.ToArray();
+                    var ii = _workSheet.Workbook._package.GetImageInfo(img);
+
+                    //Delete the relation
+                    _workSheet.Part.DeleteRelationship(relID);
+
+                    //Delete the image if there are no other references.
+                    if (ii != null && ii.RefCount == 1)
                     {
-                        _workSheet.Part.Package.DeletePart(ii.Uri);
+                        if (_workSheet.Part.Package.PartExists(ii.Uri))
+                        {
+                            _workSheet.Part.Package.DeletePart(ii.Uri);
+                        }
                     }
                 }
-                
             }
         }
+
     }
 }

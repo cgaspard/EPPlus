@@ -40,6 +40,7 @@ using System.IO;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Compatibility;
+using SkiaSharp;
 
 namespace OfficeOpenXml
 {    
@@ -122,23 +123,20 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="Picture">The image object containing the Picture</param>
         /// <param name="Alignment">Alignment. The image object will be inserted at the end of the Text.</param>
-        public ExcelVmlDrawingPicture InsertPicture(Image Picture, PictureAlignment Alignment)
+        public ExcelVmlDrawingPicture InsertPicture(SKImage Picture, PictureAlignment Alignment)
         {
             string id = ValidateImage(Alignment);
 
             //Add the image
-#if (Core)
-            var img=ImageCompat.GetImageAsByteArray(Picture);
-#else
-            ImageConverter ic = new ImageConverter();
-            byte[] img = (byte[])ic.ConvertTo(Picture, typeof(byte[]));
-#endif
+            using (var data = Picture.Encode())
+            {
+                byte[] img = data.ToArray();
+                var ii = _ws.Workbook._package.AddImage(img);
 
-
-            var ii = _ws.Workbook._package.AddImage(img);
-
-            return AddImage(Picture, id, ii);
+                return AddImage(SKBitmap.FromImage(Picture), id, ii);
+            }
         }
+
         /// <summary>
         /// Inserts a picture at the end of the text in the header or footer
         /// </summary>
@@ -148,14 +146,17 @@ namespace OfficeOpenXml
         {
             string id = ValidateImage(Alignment);
 
-            Image Picture;
+            SKBitmap Picture;
             try
             {
                 if (!PictureFile.Exists)
                 {
                     throw (new FileNotFoundException(string.Format("{0} is missing", PictureFile.FullName)));
                 }
-                Picture = Image.FromFile(PictureFile.FullName);
+                using (var stream = PictureFile.OpenRead())
+                {
+                    Picture = SKBitmap.Decode(stream);
+                }
             }
             catch (Exception ex)
             {
@@ -163,26 +164,25 @@ namespace OfficeOpenXml
             }
 
             string contentType = ExcelPicture.GetContentType(PictureFile.Extension);
-            var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/" + PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
-#if (Core)
-            var imgBytes=ImageCompat.GetImageAsByteArray(Picture);
-#else
-            var ic = new ImageConverter();
-            byte[] imgBytes = (byte[])ic.ConvertTo(Picture, typeof(byte[]));
-#endif
+            var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/" + PictureFile.Name.Substring(0, PictureFile.Name.Length - PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
 
-            var ii = _ws.Workbook._package.AddImage(imgBytes, uriPic, contentType);
+            using (var data = SKImage.FromBitmap(Picture).Encode())
+            {
+                byte[] imgBytes = data.ToArray();
+                var ii = _ws.Workbook._package.AddImage(imgBytes, uriPic, contentType);
 
-            return AddImage(Picture, id, ii);
+                return AddImage(Picture, id, ii);
+            }
         }
 
-        private ExcelVmlDrawingPicture AddImage(Image Picture, string id, ExcelPackage.ImageInfo ii)
+        private ExcelVmlDrawingPicture AddImage(SKBitmap Picture, string id, ExcelPackage.ImageInfo ii)
         {
-            double width = Picture.Width * 72 / Picture.HorizontalResolution,      //Pixel --> Points
-                   height = Picture.Height * 72 / Picture.VerticalResolution;      //Pixel --> Points
-            //Add VML-drawing            
+            double width = Picture.Width * 72 / Picture.Info.DpiX,      //Pixel --> Points
+                   height = Picture.Height * 72 / Picture.Info.DpiY;      //Pixel --> Points
+                                                                          //Add VML-drawing            
             return _ws.HeaderFooter.Pictures.Add(id, ii.Uri, "", width, height);
         }
+
         private string ValidateImage(PictureAlignment Alignment)
         {
             string id = string.Concat(Alignment.ToString()[0], _hf);

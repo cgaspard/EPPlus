@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
+using SkiaSharp;
 
 namespace OfficeOpenXml.Style
 {
@@ -213,16 +214,27 @@ namespace OfficeOpenXml.Style
         /// Set the font from a Font object
         /// </summary>
         /// <param name="Font"></param>
-        public void SetFromFont(Font Font)
+        public void SetFromFont(SKTypeface Font, float size)
         {
-            Name = Font.Name;
-            //Family=fnt.FontFamily.;
-            Size = (int)Font.Size;
-            Strike = Font.Strikeout;
-            Bold = Font.Bold;
-            UnderLine = Font.Underline;
-            Italic = Font.Italic;
+            Name = Font.FamilyName;
+            Size = (int)size;
+            // In SkiaSharp, font styles (bold, italic, etc.) are handled by the SKTypeface.Style property.
+            SKFontStyleWeight weight = Font.FontStyle.Weight;
+            SKFontStyleSlant slant = Font.FontStyle.Slant;
+
+            // Bold is defined as a font weight of 700 or more.
+            Bold = weight >= SKFontStyleWeight.Bold;
+
+            // Italic is defined by the slant of the font style.
+            Italic = slant == SKFontStyleSlant.Italic;
+
+            // SkiaSharp doesn't have direct support for underline and strikeout. These features are typically handled at the layout/rendering level when you're drawing the text, not at the font level.
+            // Thus, you would normally implement these by manually drawing lines through your text as you render it.
+            // However, for completeness of your function, I'm putting placeholders for underline and strikeout here:
+            UnderLine = false;
+            Strike = false;
         }
+
 
         internal override string Id
         {

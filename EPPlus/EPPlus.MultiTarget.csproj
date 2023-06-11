@@ -328,4 +328,7 @@ Release Candidate changes
       </PackagePath>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.3" />
+  </ItemGroup>
 </Project>
