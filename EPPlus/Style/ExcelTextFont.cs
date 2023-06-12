@@ -305,7 +305,8 @@ namespace OfficeOpenXml.Style
             // SkiaSharp does not directly support underline or strikethrough, you may need to handle these manually.
             // Assuming eUnderLineType and eStrikeType are enums or similar, set these as required:
             UnderLine = eUnderLineType.None; // Modify this as required
-            Strike = eStrikeType.None; // Modify this as required
+            ///TODO: net60 might be an issue
+            Strike = eStrikeType.No; // Modify this as required
         }
 
     }

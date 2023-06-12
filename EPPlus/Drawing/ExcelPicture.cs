@@ -214,6 +214,14 @@ namespace OfficeOpenXml.Drawing
             }
         }        //Add a new image to the compare collection
 
+        private void AddNewPicture(byte[] img, string relID)
+        {
+            var newPic = new ExcelDrawings.ImageCompare();
+            newPic.image = img;
+            newPic.relID = relID;
+            //_drawings._pics.Add(newPic);
+        }
+
         private string SavePicture(SKImage image)
         {
             // SkiaSharp does not need different handling for .NET Core like System.Drawing does.

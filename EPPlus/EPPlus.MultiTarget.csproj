@@ -329,6 +329,9 @@ Release Candidate changes
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
     <PackageReference Include="SkiaSharp" Version="2.88.3" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.1" />
   </ItemGroup>

@@ -46,6 +46,7 @@ using OfficeOpenXml.Utils.CompundDocument;
 using System.Configuration;
 using OfficeOpenXml.Compatibility;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 #if (Core)
 using Microsoft.Extensions.Configuration;
 #endif
@@ -526,18 +527,16 @@ namespace OfficeOpenXml
         private void Init()
         {
             DoAdjustDrawings = true;
-#if (Core)
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);  //Add Support for codepage 1252
 
-            var build = new ConfigurationBuilder()
+            var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true,false);            
-            var c = build.Build();
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            IConfigurationRoot c = builder.Build();
 
             var v = c["EPPlus:ExcelPackage:Compatibility:IsWorksheets1Based"];
-#else
-            var v = ConfigurationManager.AppSettings["EPPlus:ExcelPackage.Compatibility.IsWorksheets1Based"];
-#endif
+
             if (v != null)
             {
                 if(Boolean.TryParse(v.ToLowerInvariant(), out bool value))

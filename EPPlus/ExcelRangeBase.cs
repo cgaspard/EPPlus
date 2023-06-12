@@ -57,6 +57,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Compatibility;
+using SkiaSharp;
 
 namespace OfficeOpenXml
 {
@@ -806,7 +807,7 @@ namespace OfficeOpenXml
             {
                 SetToSelectedRange();
             }
-            var fontCache = new Dictionary<int, Font>();
+            var fontCache = new Dictionary<int, SKTypeface>();
 
             bool doAdjust = _worksheet._package.DoAdjustDrawings;
             _worksheet._package.DoAdjustDrawings = false;
@@ -815,7 +816,7 @@ namespace OfficeOpenXml
             var fromCol = _fromCol > _worksheet.Dimension._fromCol ? _fromCol : _worksheet.Dimension._fromCol;
             var toCol = _toCol < _worksheet.Dimension._toCol ? _toCol : _worksheet.Dimension._toCol;
 
-            if (fromCol > toCol) return; //Issue 15383
+            if (fromCol > toCol) return;
 
             if (Addresses == null)
             {
@@ -826,10 +827,15 @@ namespace OfficeOpenXml
                 foreach (var addr in Addresses)
                 {
                     fromCol = addr._fromCol > _worksheet.Dimension._fromCol ? addr._fromCol : _worksheet.Dimension._fromCol;
-                    toCol = addr._toCol < _worksheet.Dimension._toCol ? addr._toCol : _worksheet.Dimension._toCol;
+                    ///TODO: net60 - this might be an issue
+                    _toCol: _ = _worksheet.Dimension._toCol;
                     SetMinWidth(MinimumWidth, fromCol, toCol);
                 }
             }
+
+            // Create a new SKPaint instance
+            var paint = new SKPaint();
+
 
             //Get any autofilter to widen these columns
             var afAddr = new List<ExcelAddressBase>();
@@ -852,40 +858,17 @@ namespace OfficeOpenXml
                     afAddr[afAddr.Count - 1]._ws = WorkSheet;
                 }
             }
-
-            var styles = _worksheet.Workbook.Styles;
-            var nf = styles.Fonts[styles.CellXfs[0].FontId];
-            var fs = FontStyle.Regular;
-            if (nf.Bold) fs |= FontStyle.Bold;
-            if (nf.UnderLine) fs |= FontStyle.Underline;
-            if (nf.Italic) fs |= FontStyle.Italic;
-            if (nf.Strike) fs |= FontStyle.Strikeout;
-            var nfont = new Font(nf.Name, nf.Size, fs);
-
-            var normalSize = Convert.ToSingle(ExcelWorkbook.GetWidthPixels(nf.Name, nf.Size));
-
-            Bitmap b;
-            Graphics g = null;
-            try
-            {
-                //Check for missing GDI+, then use WPF istead.
-                b = new Bitmap(1, 1);
-                g = Graphics.FromImage(b);
-                g.PageUnit = GraphicsUnit.Pixel;
-            }
-            catch
-            {
-                return;
-            }
+            var styles = _worksheet.Workbook.Styles; // get the styles
 
             foreach (var cell in this)
             {
-                if (_worksheet.Column(cell.Start.Column).Hidden)    //Issue 15338
+                if (_worksheet.Column(cell.Start.Column).Hidden)
                     continue;
 
                 if (cell.Merge == true || cell.Style.WrapText) continue;
+
                 var fntID = styles.CellXfs[cell.StyleID].FontId;
-                Font f;
+                SKTypeface f;
                 if (fontCache.ContainsKey(fntID))
                 {
                     f = fontCache[fntID];
@@ -893,38 +876,28 @@ namespace OfficeOpenXml
                 else
                 {
                     var fnt = styles.Fonts[fntID];
-                    fs = FontStyle.Regular;
-                    if (fnt.Bold) fs |= FontStyle.Bold;
-                    if (fnt.UnderLine) fs |= FontStyle.Underline;
-                    if (fnt.Italic) fs |= FontStyle.Italic;
-                    if (fnt.Strike) fs |= FontStyle.Strikeout;
-                    f = new Font(fnt.Name, fnt.Size, fs);
-
+                    f = SKTypeface.FromFamilyName(fnt.Name, fnt.Bold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+                        SKFontStyleWidth.Normal, fnt.Italic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright);
                     fontCache.Add(fntID, f);
                 }
+
+                paint.Typeface = f;
+
+                var fntSize = styles.Fonts[fntID].Size;  // get font size from styles
+                paint.TextSize = (float)fntSize;
+
                 var ind = styles.CellXfs[cell.StyleID].Indent;
                 var textForWidth = cell.TextForWidth;
                 var t = textForWidth + (ind > 0 && !string.IsNullOrEmpty(textForWidth) ? new string('_', ind) : "");
-                if (t.Length > 32000) t = t.Substring(0, 32000); //Issue
-                var size = g.MeasureString(t, f, 10000, StringFormat.GenericDefault);
-
-                double width;
-                double r = styles.CellXfs[cell.StyleID].TextRotation;
-                if (r <= 0)
-                {
-                    width = (size.Width + 5) / normalSize;
-                }
-                else
-                {
-                    r = (r <= 90 ? r : r - 90);
-                    width = (((size.Width - size.Height) * Math.Abs(System.Math.Cos(System.Math.PI * r / 180.0)) + size.Height) + 5) / normalSize;
-                }
+                if (t.Length > 32000) t = t.Substring(0, 32000);
+                var size = paint.MeasureText(t);
+                float width = size + 5; // Add 5 as padding
 
                 foreach (var a in afAddr)
                 {
                     if (a.Collide(cell) != eAddressCollition.No)
                     {
-                        width += 2.25;
+                        width += 2.25f;
                         break;
                     }
                 }
@@ -934,9 +907,13 @@ namespace OfficeOpenXml
                     _worksheet.Column(cell._fromCol).Width = width > MaximumWidth ? MaximumWidth : width;
                 }
             }
+
             _worksheet.Drawings.AdjustWidth(drawWidths);
             _worksheet._package.DoAdjustDrawings = doAdjust;
         }
+
+
+
 
         private void SetMinWidth(double minimumWidth, int fromCol, int toCol)
         {

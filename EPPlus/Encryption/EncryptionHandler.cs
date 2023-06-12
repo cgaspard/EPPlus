@@ -218,11 +218,7 @@ namespace OfficeOpenXml.Encryption
         private byte[] EncryptDataAgile(byte[] data, EncryptionInfoAgile encryptionInfo, HashAlgorithm hashProvider)
         {
             var ke = encryptionInfo.KeyEncryptors[0];
-#if Core
             var aes = Aes.Create();
-#else
-            RijndaelManaged aes = new RijndaelManaged();
-#endif
             aes.KeySize = ke.KeyBits;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.Zeros;
@@ -269,11 +265,7 @@ namespace OfficeOpenXml.Encryption
         private HMAC GetHmacProvider(EncryptionInfoAgile.EncryptionKeyData ei, byte[] salt)
         {
             switch (ei.HashAlgorithm)
-            {
-#if (!Core)
-                case eHashAlogorithm.RIPEMD160:
-                    return new HMACRIPEMD160(salt);
-#endif                
+            {             
                 case eHashAlogorithm.MD5:
                     return new HMACMD5(salt);              
                 case eHashAlogorithm.SHA1:
@@ -466,11 +458,7 @@ namespace OfficeOpenXml.Encryption
 
             //AES = 32 Bits
             encryptionInfo.Verifier.VerifierHashSize = 0x20;
-#if (Core)
             var sha = SHA1.Create();
-#else
-            var sha = new SHA1Managed();
-#endif
             var verifierHash = sha.ComputeHash(verifier);
 
             encryptionInfo.Verifier.EncryptedVerifierHash = EncryptData(key, verifierHash, false);
@@ -479,11 +467,7 @@ namespace OfficeOpenXml.Encryption
         }
         private byte[] EncryptData(byte[] key, byte[] data, bool useDataSize)
         {
-#if (Core)
             var aes = Aes.Create();
-#else
-            RijndaelManaged aes = new RijndaelManaged();
-#endif
             aes.KeySize = key.Length * 8;
             aes.Mode = CipherMode.ECB;
             aes.Padding = PaddingMode.Zeros;
@@ -625,7 +609,7 @@ namespace OfficeOpenXml.Encryption
             }
             return null;
         }
-#if Core
+
         private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.HashAlgorithm)
@@ -646,28 +630,6 @@ namespace OfficeOpenXml.Encryption
                     throw new NotSupportedException(string.Format("Hash provider is unsupported. {0}", encr.HashAlgorithm));
             }
         }
-#else
-        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyData encr)
-        {
-            switch (encr.HashAlgorithm)
-            {
-                case eHashAlogorithm.MD5:
-                        return new MD5CryptoServiceProvider();
-                case eHashAlogorithm.RIPEMD160:
-                        return new RIPEMD160Managed();
-                case eHashAlogorithm.SHA1:
-                        return new SHA1CryptoServiceProvider();
-                case eHashAlogorithm.SHA256:
-                        return  new SHA256CryptoServiceProvider();
-                case eHashAlogorithm.SHA384:
-                        return new SHA384CryptoServiceProvider();
-                case eHashAlogorithm.SHA512:
-                        return new SHA512CryptoServiceProvider();
-                default:
-                        throw new NotSupportedException(string.Format("Hash provider is unsupported. {0}", encr.HashAlgorithm));
-            }
-        }
-#endif
         private MemoryStream DecryptBinary(EncryptionInfoBinary encryptionInfo, string password, long size, byte[] encryptedData)
         {
             MemoryStream doc = new MemoryStream();
@@ -679,11 +641,7 @@ namespace OfficeOpenXml.Encryption
                 encryptionInfo.Header.AlgID == AlgorithmID.AES256
                 )
             {
-#if (Core)
                 var decryptKey = Aes.Create();
-#else
-                RijndaelManaged decryptKey = new RijndaelManaged();
-#endif
                 decryptKey.KeySize = encryptionInfo.Header.KeySize;
                 decryptKey.Mode = CipherMode.ECB;
                 decryptKey.Padding = PaddingMode.None;
@@ -720,11 +678,7 @@ namespace OfficeOpenXml.Encryption
         /// <returns></returns>
         private bool IsPasswordValid(byte[] key, EncryptionInfoBinary encryptionInfo)
         {
-#if (Core)
             var decryptKey = Aes.Create();
-#else
-                RijndaelManaged decryptKey = new RijndaelManaged();
-#endif
             decryptKey.KeySize = encryptionInfo.Header.KeySize;
             decryptKey.Mode = CipherMode.ECB;
             decryptKey.Padding = PaddingMode.None;
@@ -753,11 +707,7 @@ namespace OfficeOpenXml.Encryption
             cryptoStream.Read(decryptedVerifierHash, 0, (int)16);
 
             //Get the hash for the decrypted verifier
-#if (Core)
             var sha = SHA1.Create();
-#else
-            var sha = new SHA1Managed();
-#endif
             var hash = sha.ComputeHash(decryptedVerifier);
 
             //Equal?
@@ -796,11 +746,7 @@ namespace OfficeOpenXml.Encryption
             SymmetricAlgorithm decryptKey = GetEncryptionAlgorithm(encr);
             decryptKey.BlockSize = encr.BlockSize << 3;
             decryptKey.KeySize = encr.KeyBits;
-#if (Core)
             decryptKey.Mode = CipherMode.CBC;
-#else
-            decryptKey.Mode = encr.CipherChaining == eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
-#endif
             decryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform decryptor = decryptKey.CreateDecryptor(
@@ -820,7 +766,6 @@ namespace OfficeOpenXml.Encryption
             return decryptedData;
         }
 
-#if (Core)
         private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.CipherAlgorithm)
@@ -838,35 +783,12 @@ namespace OfficeOpenXml.Encryption
                     throw(new NotSupportedException(string.Format("Unsupported Cipher Algorithm: {0}", encr.CipherAlgorithm.ToString())));
             }
         }
-#else
-        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyData encr)
-        {
-            switch (encr.CipherAlgorithm)
-            {
-                case eCipherAlgorithm.AES:
-                    return new RijndaelManaged();
-                case eCipherAlgorithm.DES:
-                    return new DESCryptoServiceProvider();
-                case eCipherAlgorithm.TRIPLE_DES:
-                case eCipherAlgorithm.TRIPLE_DES_112:
-                    return new TripleDESCryptoServiceProvider();
-                case eCipherAlgorithm.RC2:
-                    return new RC2CryptoServiceProvider();
-                default:
-                    throw(new NotSupportedException(string.Format("Unsupported Cipher Algorithm: {0}", encr.CipherAlgorithm.ToString())));
-            }
-        }
-#endif
         private void EncryptAgileFromKey(EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] key, byte[] data, long pos, long size, byte[] iv,MemoryStream ms)
         {
             var encryptKey = GetEncryptionAlgorithm(encr);
             encryptKey.BlockSize = encr.BlockSize << 3;
             encryptKey.KeySize = encr.KeyBits;
-#if (Core)
             encryptKey.Mode = CipherMode.CBC;
-#else
-            encryptKey.Mode = encr.CipherChaining==eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
-#endif
             encryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform encryptor = encryptKey.CreateEncryptor(
@@ -905,11 +827,7 @@ namespace OfficeOpenXml.Encryption
                 HashAlgorithm hashProvider;
                 if (encryptionInfo.Header.AlgIDHash == AlgorithmHashID.SHA1 || encryptionInfo.Header.AlgIDHash == AlgorithmHashID.App && (encryptionInfo.Flags & Flags.fExternal) == 0)
                 {
-#if (Core)
                     hashProvider = SHA1.Create();
-#else
-                    hashProvider = new SHA1CryptoServiceProvider();
-#endif
                 }
                 else if (encryptionInfo.Header.KeySize > 0 && encryptionInfo.Header.KeySize < 80)
                 {
