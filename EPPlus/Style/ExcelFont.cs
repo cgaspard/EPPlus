@@ -219,7 +219,7 @@ namespace OfficeOpenXml.Style
             Name = Font.FamilyName;
             Size = (int)size;
             // In SkiaSharp, font styles (bold, italic, etc.) are handled by the SKTypeface.Style property.
-            SKFontStyleWeight weight = Font.FontStyle.Weight;
+            SKFontStyleWeight weight = (SKFontStyleWeight)Font.FontStyle.Weight;
             SKFontStyleSlant slant = Font.FontStyle.Slant;
 
             // Bold is defined as a font weight of 700 or more.

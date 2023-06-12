@@ -100,11 +100,11 @@ namespace OfficeOpenXml.VBA
                 uint endel2 = br.ReadUInt32();  //0
                 ushort rgchProjectNameBuffer = br.ReadUInt16();
                 ushort rgchTimestampBuffer = br.ReadUInt16();
-#if Core
-                Verifier = new EnvelopedCms();
-#else
+//#if Core
+//                Verifier = new EnvelopedCms();
+//#else
                 Verifier = new SignedCms();
-#endif
+//#endif
                 Verifier.Decode(signature);
             }
             else

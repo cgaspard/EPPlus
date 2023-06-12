@@ -330,5 +330,6 @@ Release Candidate changes
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SkiaSharp" Version="2.88.3" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.1" />
   </ItemGroup>
 </Project>

@@ -36,6 +36,7 @@ using System.Text;
 using System.Xml;
 using OfficeOpenXml.Drawing;
 using System.Drawing;
+using SkiaSharp;
 
 namespace OfficeOpenXml.Style
 {
@@ -293,15 +294,19 @@ namespace OfficeOpenXml.Style
         /// Set the font style from a font object
         /// </summary>
         /// <param name="Font"></param>
-        public void SetFromFont(Font Font)
+        public void SetFromFont(SKTypeface typeface, float size, SKFontStyleSlant fontStyleSlant)
         {
-            LatinFont = Font.Name;
-            ComplexFont = Font.Name;
-            Size = Font.Size;
-            if (Font.Bold) Bold = Font.Bold;
-            if (Font.Italic) Italic = Font.Italic;
-            if (Font.Underline) UnderLine = eUnderLineType.Single;
-            if (Font.Strikeout) Strike = eStrikeType.Single;
+            LatinFont = typeface.FamilyName;
+            ComplexFont = typeface.FamilyName;
+            Size = size;
+            if (typeface.FontStyle.Weight >= (int)SKFontStyleWeight.SemiBold) Bold = true;
+            if (fontStyleSlant == SKFontStyleSlant.Italic) Italic = true;
+
+            // SkiaSharp does not directly support underline or strikethrough, you may need to handle these manually.
+            // Assuming eUnderLineType and eStrikeType are enums or similar, set these as required:
+            UnderLine = eUnderLineType.None; // Modify this as required
+            Strike = eStrikeType.None; // Modify this as required
         }
+
     }
 }

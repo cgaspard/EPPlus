@@ -29,6 +29,7 @@
  * Jan Källman		                Initial Release		        2009-10-01
  * Jan Källman		License changed GPL-->LGPL 2011-12-16
  *******************************************************************************/
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -269,16 +270,16 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _verticalAlign=value;
             }
         }
-        public void SetFromFont(System.Drawing.Font Font)
+        public void SetFromFont(SKTypeface typeface, float size, SKFontStyleSlant fontStyleSlant)
         {
-            Name=Font.Name;
-            //Family=fnt.FontFamily.;
-            Size=(int)Font.Size;
-            Strike=Font.Strikeout;
-            Bold = Font.Bold;
-            UnderLine=Font.Underline;
-            Italic=Font.Italic;
+            Name = typeface.FamilyName;
+            Size = (int)size;
+            Strike = (fontStyleSlant == SKFontStyleSlant.Oblique || fontStyleSlant == SKFontStyleSlant.Italic); // Consider Strikeout as Italic or Oblique style.
+            Bold = (typeface.FontStyle.Weight >= (int)SKFontStyleWeight.SemiBold); // Consider Bold as SemiBold or heavier weight.
+            UnderLine = false; // SkiaSharp does not directly support underline.
+            Italic = (fontStyleSlant == SKFontStyleSlant.Italic);
         }
+
         public static float GetFontHeight(string name, float size)
         {
             name = name.StartsWith("@") ? name.Substring(1) : name;

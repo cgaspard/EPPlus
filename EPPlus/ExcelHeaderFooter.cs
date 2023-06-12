@@ -177,11 +177,13 @@ namespace OfficeOpenXml
 
         private ExcelVmlDrawingPicture AddImage(SKBitmap Picture, string id, ExcelPackage.ImageInfo ii)
         {
-            double width = Picture.Width * 72 / Picture.Info.DpiX,      //Pixel --> Points
-                   height = Picture.Height * 72 / Picture.Info.DpiY;      //Pixel --> Points
-                                                                          //Add VML-drawing            
+            double dpi = 72.0; // You can set this to whatever value is appropriate for your case
+            double width = Picture.Width * 72 / dpi; // Pixel --> Points
+            double height = Picture.Height * 72 / dpi; // Pixel --> Points
+                                                       // Add VML-drawing
             return _ws.HeaderFooter.Pictures.Add(id, ii.Uri, "", width, height);
         }
+
 
         private string ValidateImage(PictureAlignment Alignment)
         {
