@@ -18,6 +18,7 @@ using System.Dynamic;
 using System.Globalization;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.FormulaParsing;
+using SkiaSharp;
 
 namespace EPPlusTest
 {
@@ -1905,8 +1906,8 @@ namespace EPPlusTest
             {
                 ExcelWorkbook wb = package.Workbook;
                 ExcelWorksheet sh = wb.Worksheets[1];
-                System.Drawing.Image img_ = System.Drawing.Image.FromFile(@"C:\temp\img\background.gif");
-                ExcelPicture pic = sh.Drawings.AddPicture("logo", img_);
+                SKBitmap bitmap = SKBitmap.Decode(@"C:\temp\img\background.gif");
+                ExcelPicture pic = sh.Drawings.AddPicture("logo", bitmap);
                 pic.SetPosition(1, 1);
 
                 package.SaveAs(outputFile);
@@ -2032,28 +2033,28 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo($@"C:\temp\bug\issue181-saved.xlsx"));
             }
         }
-        [TestMethod, Ignore]
-        public void Issue10()
-        {
-            var fi = new FileInfo($@"C:\temp\bug\issue10.xlsx");
-            if (fi.Exists)
-            {
-                fi.Delete();
-            }
-            using (var pck = new ExcelPackage(fi))
-            {
-                var ws = pck.Workbook.Worksheets.Add("Pictures");
-                int row = 1;
-                foreach (var f in Directory.EnumerateFiles(@"c:\temp\addin_temp\Addin\img\open_icon_library-full\icons\ico\16x16\actions\"))
-                {
-                    var b = new Bitmap(f);
-                    var pic = ws.Drawings.AddPicture($"Image{(row + 1) / 2}", b);
-                    pic.SetPosition(row, 0, 0, 0);
-                    row += 2;
-                }
-                pck.Save();
-            }
-        }
+        // [TestMethod, Ignore]
+        // public void Issue10()
+        // {
+        //     var fi = new FileInfo($@"C:\temp\bug\issue10.xlsx");
+        //     if (fi.Exists)
+        //     {
+        //         fi.Delete();
+        //     }
+        //     using (var pck = new ExcelPackage(fi))
+        //     {
+        //         var ws = pck.Workbook.Worksheets.Add("Pictures");
+        //         int row = 1;
+        //         foreach (var f in Directory.EnumerateFiles(@"c:\temp\addin_temp\Addin\img\open_icon_library-full\icons\ico\16x16\actions\"))
+        //         {
+        //             var b = new SKBitmap.FromFile(f);
+        //             var pic = ws.Drawings.AddPicture($"Image{(row + 1) / 2}", b);
+        //             pic.SetPosition(row, 0, 0, 0);
+        //             row += 2;
+        //         }
+        //         pck.Save();
+        //     }
+        // }
         /// <summary>
         /// Creating a new ExcelPackage with an external stream should not dispose of 
         /// that external stream. That is the responsibility of the caller.

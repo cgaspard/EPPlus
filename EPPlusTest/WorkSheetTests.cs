@@ -15,6 +15,7 @@ using System.Reflection;
 using OfficeOpenXml.Table;
 using System.Threading;
 using System.Globalization;
+using SkiaSharp;
 
 namespace EPPlusTest
 {
@@ -1883,7 +1884,8 @@ namespace EPPlusTest
             using (ExcelRange r = ws.Cells["A1:F1"])
             {
                 r.Merge = true;
-                r.Style.Font.SetFromFont(new Font("Arial", 18, FontStyle.Italic));
+                SKTypeface typeface = SKTypeface.FromFamilyName("Arial Black", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Italic);
+                r.Style.Font.SetFromFont(typeface, 18);
                 r.Style.Font.Color.SetColor(Color.DarkRed);
                 r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
                 //r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -2249,7 +2251,7 @@ namespace EPPlusTest
         {
             var ws = _pck.Workbook.Worksheets.Add("backimg");
 
-            ws.BackgroundImage.Image = Properties.Resources.Test1;
+            ws.BackgroundImage.Image = SKImage.FromBitmap(Properties.Resources.Test1);
             ws = _pck.Workbook.Worksheets.Add("backimg2");
             ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(_clipartPath, "Vector Drawing.wmf")));
         }
@@ -2260,7 +2262,7 @@ namespace EPPlusTest
 
             var ws = _pck.Workbook.Worksheets.Add("HeaderImage");
             ws.HeaderFooter.OddHeader.CenteredText = "Before ";
-            var img = ws.HeaderFooter.OddHeader.InsertPicture(Properties.Resources.Test1, PictureAlignment.Centered);
+            var img = ws.HeaderFooter.OddHeader.InsertPicture(SKImage.FromBitmap(Properties.Resources.Test1), PictureAlignment.Centered);
             img.Title = "Renamed Image";
             //img.GrayScale = true;
             //img.BiLevel = true;
@@ -2303,7 +2305,7 @@ namespace EPPlusTest
 
             var secondNamedStyle = _pck.Workbook.Styles.CreateNamedStyle("first", firstNamedStyle.Style).Style;
             secondNamedStyle.Font.Bold = true;
-            secondNamedStyle.Font.SetFromFont(new Font("Arial Black", 8));
+            secondNamedStyle.Font.SetFromFont(SKTypeface.FromFamilyName("Arial Black", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright), 8);
             secondNamedStyle.Border.Bottom.Style = ExcelBorderStyle.Medium;
             secondNamedStyle.Border.Left.Style = ExcelBorderStyle.Medium;
 

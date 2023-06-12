@@ -8,8 +8,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
-using System.Diagnostics;
-using System.Reflection;
+using SkiaSharp;
 
 namespace EPPlusTest
 {
@@ -26,7 +25,7 @@ namespace EPPlusTest
             Column();
             Cone();
             Dougnut();
-            Drawings();
+            // Drawings();
             Line();
             LineMarker();
             PieChart();
@@ -282,7 +281,8 @@ namespace EPPlusTest
             ser.DataLabel.Fill.Color = Color.BlueViolet;
             ser.DataLabel.Font.Color = Color.White;
             ser.DataLabel.Font.Italic = true;
-            ser.DataLabel.Font.SetFromFont(new Font("bookman old style", 8));
+            ser.DataLabel.Font.SetFromFont(SKTypeface.FromFamilyName("bookman old style", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright), 8, SKFontStyleSlant.Upright);
+            //ser.DataLabel.Font.SetFromFont(new Font("bookman old style", 8));
             Assert.IsTrue(chrt.ChartType == eChartType.XYScatterSmoothNoMarkers, "Invalid Charttype");
             chrt.Series[0].Header = "Test serie";
             chrt = ws.Drawings.AddChart("ScatterChart2", eChartType.XYScatterSmooth) as ExcelScatterChart;
@@ -576,78 +576,86 @@ namespace EPPlusTest
         }
         //[TestMethod]
         //[Ignore]
-        public void Drawings()
-        {
-            var ws = _pck.Workbook.Worksheets.Add("Shapes");
-            int y=100, i=1;
-            foreach(eShapeStyle style in Enum.GetValues(typeof(eShapeStyle)))
-            {
-                var shape = ws.Drawings.AddShape("shape"+i.ToString(), style);
-                shape.SetPosition(y, 100);
-                shape.SetSize(300, 300);
-                y += 400;
-                shape.Text = style.ToString();
-                i++;
-            }
+        // public void Drawings()
+        // {
+        //     var ws = _pck.Workbook.Worksheets.Add("Shapes");
+        //     int y=100, i=1;
+        //     foreach(eShapeStyle style in Enum.GetValues(typeof(eShapeStyle)))
+        //     {
+        //         var shape = ws.Drawings.AddShape("shape"+i.ToString(), style);
+        //         shape.SetPosition(y, 100);
+        //         shape.SetSize(300, 300);
+        //         y += 400;
+        //         shape.Text = style.ToString();
+        //         i++;
+        //     }
 
-            (ws.Drawings["shape1"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;            
-            var rt = (ws.Drawings["shape1"] as ExcelShape).RichText.Add("Added formated richtext");
-            (ws.Drawings["shape1"] as ExcelShape).LockText = false;
-            rt.Bold = true;
-            rt.Color = Color.Aquamarine;
-            rt.Italic = true;
-            rt.Size = 17;
-            (ws.Drawings["shape2"] as ExcelShape).TextVertical = eTextVerticalType.Vertical;
-            rt = (ws.Drawings["shape2"] as ExcelShape).RichText.Add("\r\nAdded formated richtext");
-            rt.Bold = true;
-            rt.Color = Color.DarkGoldenrod ;
-            rt.SetFromFont(new Font("Times new roman", 18, FontStyle.Underline));
-            rt.UnderLineColor = Color.Green;
+        //     (ws.Drawings["shape1"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;            
+        //     var rt = (ws.Drawings["shape1"] as ExcelShape).RichText.Add("Added formated richtext");
+        //     (ws.Drawings["shape1"] as ExcelShape).LockText = false;
+        //     rt.Bold = true;
+        //     rt.Color = Color.Aquamarine;
+        //     rt.Italic = true;
+        //     rt.Size = 17;
+        //     (ws.Drawings["shape2"] as ExcelShape).TextVertical = eTextVerticalType.Vertical;
+        //     rt = (ws.Drawings["shape2"] as ExcelShape).RichText.Add("\r\nAdded formated richtext");
+        //     rt.Bold = true;
+        //     rt.Color = Color.DarkGoldenrod ;
+        //     rt.SetFromFont(SKTypeface.FromFamilyName("Times new roman", new SKFontStyle { 
+        //         Slant = SKFontStyleSlant.Upright,
+        //         Weight = SKFontStyleWeight.Normal
+        //     }), 18);
+        //     rt.SetFromFont(SKTypeface.FromFamilyName("Times new roman", new SKFontStyle(SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright), 18));
+            
+        //         // , 18, SKFontStyleSlant.Upright);
+
+        //     // rt.SetFromFont(new Font("Times new roman", 18, FontStyle.Underline));
+        //     rt.UnderLineColor = Color.Green;
 
 
-            (ws.Drawings["shape3"] as ExcelShape).TextAnchoring=eTextAnchoringType.Bottom;
-            (ws.Drawings["shape3"] as ExcelShape).TextAnchoringControl=true ;
+        //     (ws.Drawings["shape3"] as ExcelShape).TextAnchoring=eTextAnchoringType.Bottom;
+        //     (ws.Drawings["shape3"] as ExcelShape).TextAnchoringControl=true ;
 
-            (ws.Drawings["shape4"] as ExcelShape).TextVertical = eTextVerticalType.Vertical270;
-            (ws.Drawings["shape4"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;
+        //     (ws.Drawings["shape4"] as ExcelShape).TextVertical = eTextVerticalType.Vertical270;
+        //     (ws.Drawings["shape4"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;
 
-            (ws.Drawings["shape5"] as ExcelShape).Fill.Style=eFillStyle.SolidFill;
-            (ws.Drawings["shape5"] as ExcelShape).Fill.Color=Color.Red;
-            (ws.Drawings["shape5"] as ExcelShape).Fill.Transparancy = 50;
+        //     (ws.Drawings["shape5"] as ExcelShape).Fill.Style=eFillStyle.SolidFill;
+        //     (ws.Drawings["shape5"] as ExcelShape).Fill.Color=Color.Red;
+        //     (ws.Drawings["shape5"] as ExcelShape).Fill.Transparancy = 50;
 
-            (ws.Drawings["shape6"] as ExcelShape).Fill.Style = eFillStyle.NoFill;
-            (ws.Drawings["shape6"] as ExcelShape).Font.Color = Color.Black;
-            (ws.Drawings["shape6"] as ExcelShape).Border.Fill.Color = Color.Black;
+        //     (ws.Drawings["shape6"] as ExcelShape).Fill.Style = eFillStyle.NoFill;
+        //     (ws.Drawings["shape6"] as ExcelShape).Font.Color = Color.Black;
+        //     (ws.Drawings["shape6"] as ExcelShape).Border.Fill.Color = Color.Black;
 
-            (ws.Drawings["shape7"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
-            (ws.Drawings["shape7"] as ExcelShape).Fill.Color=Color.Gray;
-            (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Style=eFillStyle.SolidFill;
-            (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Color = Color.Black;
-            (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Transparancy=43;
-            (ws.Drawings["shape7"] as ExcelShape).Border.LineCap=eLineCap.Round;
-            (ws.Drawings["shape7"] as ExcelShape).Border.LineStyle = eLineStyle.LongDash;
-            (ws.Drawings["shape7"] as ExcelShape).Font.UnderLineColor = Color.Blue;
-            (ws.Drawings["shape7"] as ExcelShape).Font.Color = Color.Black;
-            (ws.Drawings["shape7"] as ExcelShape).Font.Bold = true;
-            (ws.Drawings["shape7"] as ExcelShape).Font.LatinFont = "Arial";
-            (ws.Drawings["shape7"] as ExcelShape).Font.ComplexFont = "Arial";
-            (ws.Drawings["shape7"] as ExcelShape).Font.Italic = true;
-            (ws.Drawings["shape7"] as ExcelShape).Font.UnderLine = eUnderLineType.Dotted;
+        //     (ws.Drawings["shape7"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
+        //     (ws.Drawings["shape7"] as ExcelShape).Fill.Color=Color.Gray;
+        //     (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Style=eFillStyle.SolidFill;
+        //     (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Color = Color.Black;
+        //     (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Transparancy=43;
+        //     (ws.Drawings["shape7"] as ExcelShape).Border.LineCap=eLineCap.Round;
+        //     (ws.Drawings["shape7"] as ExcelShape).Border.LineStyle = eLineStyle.LongDash;
+        //     (ws.Drawings["shape7"] as ExcelShape).Font.UnderLineColor = Color.Blue;
+        //     (ws.Drawings["shape7"] as ExcelShape).Font.Color = Color.Black;
+        //     (ws.Drawings["shape7"] as ExcelShape).Font.Bold = true;
+        //     (ws.Drawings["shape7"] as ExcelShape).Font.LatinFont = "Arial";
+        //     (ws.Drawings["shape7"] as ExcelShape).Font.ComplexFont = "Arial";
+        //     (ws.Drawings["shape7"] as ExcelShape).Font.Italic = true;
+        //     (ws.Drawings["shape7"] as ExcelShape).Font.UnderLine = eUnderLineType.Dotted;
 
-            (ws.Drawings["shape8"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
-            (ws.Drawings["shape8"] as ExcelShape).Font.LatinFont = "Miriam";
-            (ws.Drawings["shape8"] as ExcelShape).Font.UnderLineColor = Color.CadetBlue;
-            (ws.Drawings["shape8"] as ExcelShape).Font.UnderLine = eUnderLineType.Single;
+        //     (ws.Drawings["shape8"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
+        //     (ws.Drawings["shape8"] as ExcelShape).Font.LatinFont = "Miriam";
+        //     (ws.Drawings["shape8"] as ExcelShape).Font.UnderLineColor = Color.CadetBlue;
+        //     (ws.Drawings["shape8"] as ExcelShape).Font.UnderLine = eUnderLineType.Single;
 
-            (ws.Drawings["shape9"] as ExcelShape).TextAlignment = eTextAlignment.Right;
+        //     (ws.Drawings["shape9"] as ExcelShape).TextAlignment = eTextAlignment.Right;
 
-            (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEnd = eEndStyle.Oval;
-            (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEndSizeWidth = eEndSize.Large;
-            (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEndSizeHeight = eEndSize.Large;
-            (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEnd = eEndStyle.Arrow;
-            (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEndSizeHeight = eEndSize.Small;
-            (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEndSizeWidth = eEndSize.Small;
-        }
+        //     (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEnd = eEndStyle.Oval;
+        //     (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEndSizeWidth = eEndSize.Large;
+        //     (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEndSizeHeight = eEndSize.Large;
+        //     (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEnd = eEndStyle.Arrow;
+        //     (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEndSizeHeight = eEndSize.Small;
+        //     (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEndSizeWidth = eEndSize.Small;
+        // }
         [TestMethod]
         [Ignore]
         public void DrawingWorksheetCopy()

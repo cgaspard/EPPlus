@@ -5,10 +5,10 @@
     <AssemblyName>EPPlusTest</AssemblyName>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>EPPlusTest.snk</AssemblyOriginatorKeyFile>
-    <AssemblyVersion>4.5.0.0</AssemblyVersion>
-    <FileVersion>4.5.0.0</FileVersion>
-    <Version>4.5.0.0</Version>
-    <Description>EPPlus Core</Description>
+    <AssemblyVersion>4.6.0.0</AssemblyVersion>
+    <FileVersion>4.6.0.0</FileVersion>
+    <Version>4.6.0.0</Version>
+    <Description>Package Description</Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;Core;NETCOREAPP1_1</DefineConstants>
@@ -24,7 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\BitmapImage.gif" />
-    <!-- <EmbeddedResource Include="Resources\Test1.jpg" /> -->
+    <EmbeddedResource Include="Resources\Test1.jpg" />
     <EmbeddedResource Include="Resources\Vector Drawing.wmf" />
     <EmbeddedResource Include="Resources\Vector Drawing2.wmf" />
   </ItemGroup>
@@ -35,6 +35,7 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.1.11" />
     <PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EPPlus\EPPlus.Core.csproj" />
