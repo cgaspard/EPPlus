@@ -68,18 +68,18 @@ namespace EPPlusSamples
                     // This is the same sample as the original Excelpackage, sample 4, but without the template
                     // This sample requires the AdventureWorks database.  
                     //Shows how to use Ranges, Styling, Namedstyles and Hyperlinks
-                    Console.WriteLine("Running sample 3");
-                    var sample3Path = Sample3.RunSample3(connectionStr);
-                    Console.WriteLine("Sample 3 created: {0}", sample3Path);
-                    Console.WriteLine();
+                    // Console.WriteLine("Running sample 3");
+                    // var sample3Path = Sample3.RunSample3(connectionStr);
+                    // Console.WriteLine("Sample 3 created: {0}", sample3Path);
+                    // Console.WriteLine();
 
                     // Sample 4 - creates a workbook based on a template.
                     // Populates a range with data and set the series of a linechart.
                     // This sample requires the AdventureWorks database.  
-                    Console.WriteLine("Running sample 4");
-                    var sample4Path = Sample4.RunSample4(connectionStr, new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}GraphTemplate.xlsx"));      //Template path from /bin/debug or /bin/release
-                    Console.WriteLine("Sample 4 created: {0}", sample4Path);
-                    Console.WriteLine();
+                    // Console.WriteLine("Running sample 4");
+                    // var sample4Path = Sample4.RunSample4(connectionStr, new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}GraphTemplate.xlsx"));      //Template path from /bin/debug or /bin/release
+                    // Console.WriteLine("Sample 4 created: {0}", sample4Path);
+                    // Console.WriteLine();
                 }
 
                 //Sample 5
@@ -93,10 +93,10 @@ namespace EPPlusSamples
                 //Creates an advanced report on a directory in the filesystem.
                 //Parameter 2 is the directory to report. Parameter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
                 //This example demonstrates how to use outlines, tables,comments, shapes, pictures and charts.                
-                Console.WriteLine("Running sample 6");
-                output = Sample6.RunSample6(new DirectoryInfo(System.Reflection.Assembly.GetEntryAssembly().Location).Parent, 5, true);
-                Console.WriteLine("Sample 6 created:", output);
-                Console.WriteLine();
+                // Console.WriteLine("Running sample 6");
+                // output = Sample6.RunSample6(new DirectoryInfo(System.Reflection.Assembly.GetEntryAssembly().Location).Parent, 5, true);
+                // Console.WriteLine("Sample 6 created:", output);
+                // Console.WriteLine();
 
                 //Sample 7
                 //This sample shows the performance capabilities of the component and shows sheet protection.
@@ -132,10 +132,10 @@ namespace EPPlusSamples
                 Console.WriteLine();
 
                 //Sample 12 - Pivottables
-                Console.WriteLine("Running sample 12");
-                output = Sample12.RunSample12(connectionStr);
-                Console.WriteLine("Sample 12 created {0}", output);
-                Console.WriteLine();
+                // Console.WriteLine("Running sample 12");
+                // output = Sample12.RunSample12(connectionStr);
+                // Console.WriteLine("Sample 12 created {0}", output);
+                // Console.WriteLine();
 
                 //Sample 13 - Shows a few ways to load data (Datatable, IEnumerable and more).
                 Console.WriteLine("Running sample 13");
